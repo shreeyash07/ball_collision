@@ -1,4 +1,4 @@
-const BALL_NUMBERS = 10;
+const BALL_NUMBERS = 10000;
 const C_WIDTH = 1250;
 const C_HEIGHT = 700;
 const SPEED = 1;
@@ -6,6 +6,7 @@ const SPEED = 1;
 let canvas = document.getElementById('collision')
 
 let context = canvas.getContext("2d")
+canvas.style
 
 let generateRandomNumber = () => {
     
@@ -22,8 +23,8 @@ let generateRandomColor = () => {
 
 class Ball{
     constructor(x, y ){
-        this.maxRadius = 50;
-        this.minRadius = 5;
+        this.maxRadius = 3;
+        this.minRadius = 2;
         this.x = x;
         this.y = y;
         this.radius = Math.floor(this.minRadius + Math.random()*(this.maxRadius + 1 - this.minRadius));
@@ -31,6 +32,9 @@ class Ball{
         this.dx = Math.random() < 0.5 ? -1 : 1;
         this.dy = Math.random() < 0.5 ? -1 : 1;
         console.log(this.dx,this.dy);
+        this.mass = 1;
+
+       
 
     }
 
@@ -68,20 +72,81 @@ let collisionDetection = (ball) => {
             var distance = Math.sqrt(newdx * newdx + newdy * newdy);
 
             if (distance < ball.radius + ballList[eachBallFromList].radius) {
-                ball.dx *= -1;
-                ball.dy *= -1;
+                // ball.dx *= -1;
+                // ball.dy *= -1;
+                console.log(ballList)
+                elasticCollision(ball, ballList[eachBallFromList]);
             }
         }
     }
 }
 
-let render = () => {
+let rotate = (velocity, angle) => {
+  const rotatedVelocities = {
+    x: velocity.x * Math.cos(angle) - velocity.y * Math.sin(angle),
+    y: velocity.x * Math.sin(angle) + velocity.y * Math.cos(angle)
+  };
+
+  return rotatedVelocities;
+}
+
+let elasticCollision = (ballA, ballB) => {
+  let dxDiff = ballA.dx - ballB.dx;
+  let dyDiff = ballA.dy - ballB.dy;
+
+  let xDist = ballB.x - ballA.x;
+  let yDist = ballB.y - ballA.y;
+
+  
+
+  if (dxDiff * xDist + dyDiff * yDist >= 0) {
+    
+    const angle = -Math.atan2(yDist, xDist);
+
+    let m1 = ballA.mass;
+    let m2 = ballB.mass;
+
+    let u1 = rotate({
+      x: ballA.dx,
+      y: ballA.dy
+    }, angle);
+
+    let u2 = rotate({
+      x: ballB.dx,
+      y: ballB.dy
+    }, angle);
+
+    const v1 = {
+      x: (u1.x * (m1 - m2)) / (m1 + m2) + (u2.x * 2 * m2) / (m1 + m2),
+      y: u1.y
+    };
+    const v2 = {
+      x: (u2.x * (m1 - m2)) / (m1 + m2) + (u1.x * 2 * m2) / (m1 + m2),
+      y: u2.y
+    };
+  
+    let vf1 = rotate(v1, -angle);
+    let vf2 = rotate(v2, -angle);
+
+    ballA.dx = vf1.x;
+    ballA.dy = vf1.y;
+
+    ballB.dx = vf2.x;
+    ballB.dy = vf2.y;
+    
+  }
+}
+
+
+let ballSpawn = () => {
       for (var i = 0; i < BALL_NUMBERS ; i++) {
 
         do { 
-            x=Math.floor(Math.random() * (C_WIDTH - ball.maxRadius)+ ball.maxRadius);
-            y=Math.floor(Math.random() * (C_HEIGHT- ball.maxRadius)+ ball.maxRadius);
+            x = Math.floor(Math.random() * (C_WIDTH - ball.maxRadius *2)+ ball.maxRadius);
+            y = Math.floor(Math.random() * (C_HEIGHT- ball.maxRadius *2)+ ball.maxRadius);
+
             var ball1 = new Ball(x,y);
+
         }while(isColliding(ball1));
 
             ballList.push(ball1); 
@@ -116,7 +181,7 @@ let ballMove = () => {
     });
     
 }
-render(); 
+ballSpawn(); 
 setInterval(ballMove, 1000/60);
 
 
