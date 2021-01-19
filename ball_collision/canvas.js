@@ -1,4 +1,4 @@
-const BALL_NUMBERS = 10000;
+const BALL_NUMBERS = 1000;
 const C_WIDTH = 1250;
 const C_HEIGHT = 700;
 const SPEED = 1;
@@ -23,8 +23,8 @@ let generateRandomColor = () => {
 
 class Ball{
     constructor(x, y ){
-        this.maxRadius = 3;
-        this.minRadius = 2;
+        this.maxRadius = 10;
+        this.minRadius = 5;
         this.x = x;
         this.y = y;
         this.radius = Math.floor(this.minRadius + Math.random()*(this.maxRadius + 1 - this.minRadius));
